@@ -1,36 +1,38 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateCatDto } from './dto/create-cat.dto/create-cat.dto';
-import { Observable, map, of, tap } from 'rxjs';
+import { Cat } from './entities/cat/cat';
+
 
 @Injectable()
 export class CatsService {
-    private readonly cats: CreateCatDto[] = [];
+  private readonly logger = new Logger(CatsService.name);
 
-    
-    create(createCatDto: CreateCatDto) {
-          // Генерируем уникальный ID для нового кота
-    const id = this.cats.length ? this.cats[this.cats.length - 1].id + 1 : 1;
-    const newCat = { ...createCatDto, id };
-    this.cats.push(newCat);
-        
-      }
-    
-     
-  // Метод для получения всех котов
-  findAll(): Observable<CreateCatDto[]> {
-    return of(this.cats).pipe(
-      tap({
-        next: cats => console.log('Cats in service:', cats),
-        complete: () => console.log('Service: Stream complete')
-      })
-    );
+  constructor(
+    @InjectRepository(Cat)
+    private catsRepository: Repository<Cat>,
+  ) {}
+
+  async create(createCatDto: CreateCatDto): Promise<Cat> {
+    this.logger.debug(`Creating a cat with data: ${JSON.stringify(createCatDto)}`);
+    try {
+      const cat = this.catsRepository.create(createCatDto);
+      this.logger.debug(`Cat entity created: ${JSON.stringify(cat)}`);
+      const savedCat = await this.catsRepository.save(cat);
+      this.logger.debug(`Cat saved to database: ${JSON.stringify(savedCat)}`);
+      return savedCat;
+    } catch (error) {
+      this.logger.error(`Error creating cat: ${error.message}`, error.stack);
+      throw error;
+    }
   }
 
+  async findAll(): Promise<Cat[]> {
+    return this.catsRepository.find();
+  }
 
-   // Метод для получения кота по ID
-   findOne(id: number): Observable<CreateCatDto | undefined> {
-    return of(this.cats).pipe(
-      map(cats => cats.find(cat => cat.id === id))
-    );
+  async findOne(id: number): Promise<Cat> {
+    return this.catsRepository.findOne({ where: { id } });
   }
 }

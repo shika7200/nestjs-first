@@ -25,7 +25,7 @@ describe('AppController (e2e)', () => {
   });
 
   it('/cats (POST)', () => {
-    const createCatDto: CreateCatDto = { id: 1, name: 'Tom', age: 3, breed: 'Siamese' };
+    const createCatDto: CreateCatDto = {  name: 'Tom', age: 3, breed: 'Siamese' };
     return request(app.getHttpServer())
       .post('/cats')
       .send(createCatDto)
@@ -39,7 +39,7 @@ describe('AppController (e2e)', () => {
   });
 
   it('/cats/:id (GET)', () => {
-    const createCatDto: CreateCatDto = { id: 1, name: 'Tom', age: 3, breed: 'Siamese' };
+    const createCatDto: CreateCatDto = { name: 'Tom', age: 3, breed: 'Siamese' };
     return request(app.getHttpServer())
       .post('/cats')
       .send(createCatDto)

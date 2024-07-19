@@ -5,10 +5,10 @@ import { join } from 'path';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { CatsController } from './cats/cats.controller';
-import { CatsService } from './cats/cats.service';
 import { CatsModule } from './cats/cats.module';
 import { LoggerMiddleware } from './common/middleware/logger/logger.middleware';
+import { Cat } from './cats/entities/cat/cat';
+
 
 @Module({
   imports: [
@@ -19,7 +19,7 @@ import { LoggerMiddleware } from './common/middleware/logger/logger.middleware';
       username: 'your_username',
       password: 'your_password',
       database: 'cats_db',
-      entities: [join(__dirname, '**', '*.entity.{ts,js}')],
+      entities: [Cat],
       synchronize: true,
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
@@ -31,8 +31,8 @@ import { LoggerMiddleware } from './common/middleware/logger/logger.middleware';
     }),
     CatsModule,
   ],
-  controllers: [AppController, CatsController],
-  providers: [AppService, CatsService],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
